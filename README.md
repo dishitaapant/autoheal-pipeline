@@ -160,68 +160,6 @@ docker-compose up --build
 # MongoDB:   localhost:27017
 ```
 
----
-
-## 🔗 Connect GitHub Webhook
-
-### Step 1 — Expose your backend
-
-For local dev, use [ngrok](https://ngrok.com):
-```bash
-ngrok http 8000
-# Copy the https URL, e.g.: https://abc123.ngrok.io
-```
-
-For production, deploy to Railway / Render / EC2 and use that URL.
-
-### Step 2 — Add GitHub repository secrets
-
-In your GitHub repo → **Settings → Secrets and variables → Actions**:
-
-| Secret Name | Value |
-|---|---|
-| `AUTOHEAL_WEBHOOK_URL` | Your backend URL (e.g. `https://abc123.ngrok.io`) |
-| `AUTOHEAL_API_KEY` | Any random string for auth (optional) |
-
-Add as **Variables** (not secrets) for the webhook URL:  
-Go to **Settings → Variables → Actions → New repository variable**.
-
-### Step 3 — Set GitHub repository variable
-
-```
-Name:  AUTOHEAL_WEBHOOK_URL
-Value: https://your-backend-url.com
-```
-
-### Step 4 — Configure webhook secret (optional but recommended)
-
-```bash
-# Generate a secret
-python -c "import secrets; print(secrets.token_hex(32))"
-
-# Add to GitHub: Settings → Webhooks → Add webhook
-# Payload URL: https://your-backend/api/webhook/github
-# Content type: application/json
-# Secret: <your generated secret>
-# Events: Workflow runs
-```
-
-Add the same secret to your backend `.env`:
-```
-WEBHOOK_SECRET=<your secret>
-```
-
-### Step 5 — Test end-to-end
-
-```bash
-# Trigger a simulated failure via GitHub Actions
-gh workflow run pipeline.yml -f simulate_failure=dependency_error
-
-# Or push a breaking change and watch the dashboard heal it
-```
-
----
-
 ## 🤖 Self-Healing Logic
 
 | Failure Type | Actions Taken |
