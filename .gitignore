@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+*.pkl
+
+# Node
+node_modules/
+build/
+.env.local
+.env.production
+
+# Docker
+.docker/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Mongo data
+mongo_data/

@@ -1,0 +1,106 @@
+{
+  "folders": [
+    { "name": "AutoHeal Root", "path": "." },
+    { "name": "Backend", "path": "backend" },
+    { "name": "Frontend", "path": "frontend" }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:Backend}/.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "[python]": {
+      "editor.tabSize": 4
+    },
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/node_modules": true,
+      "**/.pytest_cache": true
+    }
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Backend: FastAPI",
+        "type": "python",
+        "request": "launch",
+        "module": "uvicorn",
+        "args": ["main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"],
+        "cwd": "${workspaceFolder:Backend}",
+        "envFile": "${workspaceFolder:Backend}/.env",
+        "justMyCode": true
+      },
+      {
+        "name": "Frontend: React Dev",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["start"],
+        "cwd": "${workspaceFolder:Frontend}",
+        "env": { "REACT_APP_API_URL": "http://localhost:8000" },
+        "serverReadyAction": {
+          "pattern": "Local:.*:(\\d+)",
+          "uriFormat": "http://localhost:%s",
+          "action": "openExternally"
+        }
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Full Stack",
+        "configurations": ["Backend: FastAPI", "Frontend: React Dev"],
+        "stopAll": true
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Install Backend Deps",
+        "type": "shell",
+        "command": "pip install -r requirements.txt",
+        "options": { "cwd": "${workspaceFolder:Backend}" },
+        "group": "build"
+      },
+      {
+        "label": "Install Frontend Deps",
+        "type": "shell",
+        "command": "npm install",
+        "options": { "cwd": "${workspaceFolder:Frontend}" },
+        "group": "build"
+      },
+      {
+        "label": "Start MongoDB (Docker)",
+        "type": "shell",
+        "command": "docker run -d --name autoheal-mongo -p 27017:27017 mongo:7.0 || docker start autoheal-mongo",
+        "group": "build"
+      },
+      {
+        "label": "Docker Compose Up",
+        "type": "shell",
+        "command": "docker-compose up --build",
+        "options": { "cwd": "${workspaceFolder:AutoHeal Root}" },
+        "group": "build"
+      },
+      {
+        "label": "Trigger Demo Failure",
+        "type": "shell",
+        "command": "curl -s -X POST http://localhost:8000/api/webhook/test-failure | python3 -m json.tool",
+        "group": "test"
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "mongodb.mongodb-vscode",
+      "ms-azuretools.vscode-docker"
+    ]
+  }
+}
